@@ -5,7 +5,11 @@ import { redirect } from 'next/navigation';
 import Image from 'next/image';
 
 export default function Login() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  if (status === 'loading') {
+    return <div className="min-h-screen bg-black text-white flex items-center justify-center">Loading...</div>;
+  }
 
   if (session) {
     redirect('/');
