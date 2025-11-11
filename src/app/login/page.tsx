@@ -1,9 +1,16 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
 import Image from 'next/image';
 
 export default function Login() {
+  const { data: session } = useSession();
+
+  if (session) {
+    redirect('/');
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
       <div className="text-center">
