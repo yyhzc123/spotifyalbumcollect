@@ -21,7 +21,7 @@ export const authOptions = {
       return token
     },
     async session({ session, token, user }: { session: Session; token: JWT; user: User }): Promise<Session> {
-      session.accessToken = token.accessToken
+      session.accessToken = token.accessToken as string;
       return session
     },
   },
