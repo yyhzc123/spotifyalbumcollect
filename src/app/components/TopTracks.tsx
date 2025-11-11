@@ -1,3 +1,4 @@
+'''
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -17,29 +18,58 @@ interface Track {
   };
 }
 
+type TimeRange = 'short_term' | 'medium_term' | 'long_term';
+
 export default function TopTracks() {
   const { data: session } = useSession();
   const [topTracks, setTopTracks] = useState<Track[]>([]);
+  const [timeRange, setTimeRange] = useState<TimeRange>('medium_term');
 
   useEffect(() => {
     const fetchTopTracks = async () => {
       if (session?.accessToken) {
-        const response = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=50', {
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`,
-          },
-        });
+        const response = await fetch(
+          `https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=${timeRange}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+            },
+          }
+        );
         const data = await response.json();
         setTopTracks(data.items);
       }
     };
 
     fetchTopTracks();
-  }, [session]);
+  }, [session, timeRange]);
+
+  const timeRangeLabels: { [key in TimeRange]: string } = {
+    short_term: 'Last 4 Weeks',
+    medium_term: 'Last 6 Months',
+    long_term: 'All Time',
+  };
 
   return (
     <div className="mt-8">
-      <h2 className="text-3xl font-bold mb-6">Your Top 50 Tracks</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold">Your Top 50 Tracks</h2>
+        <div className="flex space-x-2 bg-[#282828] p-1 rounded-full">
+          {(['short_term', 'medium_term', 'long_term'] as TimeRange[]).map((range) => (
+            <button
+              key={range}
+              onClick={() => setTimeRange(range)}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-300 ${
+                timeRange === range
+                  ? 'bg-green-500 text-white'
+                  : 'bg-transparent text-gray-400 hover:bg-white/10'
+              }`}
+            >
+              {timeRangeLabels[range]}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
         {topTracks.map((track) => (
           <a
