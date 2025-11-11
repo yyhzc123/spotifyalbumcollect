@@ -4,9 +4,22 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 
+interface Track {
+  id: string;
+  name: string;
+  artists: { name: string }[];
+  album: {
+    name: string;
+    images: { url: string }[];
+  };
+  external_urls: {
+    spotify: string;
+  };
+}
+
 export default function TopTracks() {
   const { data: session } = useSession();
-  const [topTracks, setTopTracks] = useState([]);
+  const [topTracks, setTopTracks] = useState<Track[]>([]);
 
   useEffect(() => {
     const fetchTopTracks = async () => {
@@ -26,24 +39,32 @@ export default function TopTracks() {
 
   return (
     <div className="mt-8">
-      <h2 className="text-2xl font-bold mb-4">Your Top 50 Tracks</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {topTracks.map((track: any) => (
-          <div key={track.id} className="relative group">
-            <Image
-              src={track.album.images[0].url}
-              alt={track.album.name}
-              width={300}
-              height={300}
-              className="rounded-lg"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-              <div className="text-center text-white p-2">
-                <p className="font-bold">{track.name}</p>
-                <p className="text-sm">{track.artists.map((artist: any) => artist.name).join(', ')}</p>
-              </div>
+      <h2 className="text-3xl font-bold mb-6">Your Top 50 Tracks</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        {topTracks.map((track) => (
+          <a
+            key={track.id}
+            href={track.external_urls.spotify}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#181818] rounded-lg p-4 hover:bg-[#282828] transition duration-300 group"
+          >
+            <div className="relative mb-4">
+              <Image
+                src={track.album.images[0].url}
+                alt={track.album.name}
+                width={300}
+                height={300}
+                className="rounded-md shadow-lg"
+              />
             </div>
-          </div>
+            <div>
+              <p className="font-bold truncate">{track.name}</p>
+              <p className="text-sm text-gray-400 truncate">
+                {track.artists.map((artist) => artist.name).join(', ')}
+              </p>
+            </div>
+          </a>
         ))}
       </div>
     </div>
